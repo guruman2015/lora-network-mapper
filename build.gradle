@@ -16,6 +16,9 @@ allprojects {
     repositories {
         jcenter()
     }
+
+    project.ext['compileSdkVersion'] = 23
+    project.ext['buildToolsVersion'] = "23.0.2"
 }
 
 task clean(type: Delete) {
