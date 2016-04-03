@@ -15,6 +15,7 @@ import android.util.Log;
 import com.cmu.ccgs.loranetworkmapper.MainActivity;
 import com.cmu.ccgs.loranetworkmapper.lora.mdot.driver.MdotCdcAcmSerialDriver;
 import com.cmu.ccgs.loranetworkmapper.lora.mdot.driver.UsbId;
+import com.cmu.ccgs.loranetworkmapper.lora.mdot.service.MdotSerialConsoleService;
 import com.hoho.android.usbserial.driver.ProbeTable;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -56,24 +57,35 @@ public class SerialConsoleService extends Service {
     public static final String NOTIFY_DISCONNECTED = "com.cmu.ccgs.broadcast.message";
     public static final String NOTIFY_MESSAGE_RECEIVED = "com.cmu.ccgs.broadcast.message";
 
+    public static final int ACTION_STOP = -1;
     public static final int ACTION_CONNECT = 0;
     public static final int ACTION_DISCONNECT = 1;
     public static final int ACTION_SEND = 2;
 
+    protected static Class getServiceClass(){
+        return MdotSerialConsoleService.class;
+    }
+
+    public static void stop(Context context){
+        Intent i = new Intent(context, getServiceClass());
+        i.putExtra(KEY_ACTION, ACTION_STOP);
+        context.startService(i);
+    }
+
     public static void connect(Context context){
-        Intent i = new Intent(context, SerialConsoleService.class);
+        Intent i = new Intent(context, getServiceClass());
         i.putExtra(KEY_ACTION, ACTION_CONNECT);
         context.startService(i);
     }
 
     public static void disconnect(Context context){
-        Intent i = new Intent(context, SerialConsoleService.class);
+        Intent i = new Intent(context, getServiceClass());
         i.putExtra(KEY_ACTION, ACTION_DISCONNECT);
         context.startService(i);
     }
 
     public static void sendMessage(Context context, String message){
-        Intent i = new Intent(context, SerialConsoleService.class);
+        Intent i = new Intent(context, getServiceClass());
         i.putExtra(KEY_ACTION, ACTION_SEND);
         i.putExtra(KEY_MESSAGE, message);
         context.startService(i);
@@ -97,7 +109,6 @@ public class SerialConsoleService extends Service {
 
     private final SerialInputOutputManager.Listener mListener =
             new SerialInputOutputManager.Listener() {
-
                 @Override
                 public void onRunError(Exception e) {
                     Log.d(TAG, "Runner stopped.");
@@ -106,13 +117,7 @@ public class SerialConsoleService extends Service {
                 @Override
                 public void onNewData(final byte[] data) {
                     Log.d(TAG, "Received: " + HexDump.dumpHexString(data));
-                    mReceiveBuffer.append(new String(data));
-                    String message = mReceiveBuffer.toString();
-                    if(message.contains("\n")){
-                        notifyUpdate(message.subSequence(0, message.lastIndexOf("\n")).toString());
-                        mReceiveBuffer = new StringBuffer(BUFFER_SIZE);
-                        mReceiveBuffer.append(message.substring(message.lastIndexOf("\n") + 1));
-                    }
+                    SerialConsoleService.this.onNewData(new String(data));
                 }
             };
 
@@ -125,6 +130,9 @@ public class SerialConsoleService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         switch(intent.getIntExtra(KEY_ACTION, 0)){
+            case ACTION_STOP:
+                stopSelf();
+                break;
             case ACTION_CONNECT:
                 connect();
                 break;
@@ -135,7 +143,7 @@ public class SerialConsoleService extends Service {
                 sendMessage(intent.getStringExtra(KEY_MESSAGE));
                 break;
         }
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -195,12 +203,21 @@ public class SerialConsoleService extends Service {
             Log.e(TAG, "Disconnected");
         }
         notifyDisconnected();
-        stopSelf();
     }
 
     protected void sendMessage(String message){
         if(mWriteManager != null){
             mWriteManager.writeAsync(message.getBytes());
+        }
+    }
+
+    protected void onNewData(String data){
+        mReceiveBuffer.append(data);
+        String message = mReceiveBuffer.toString();
+        if(message.contains("\n")){
+            notifyUpdate(message.subSequence(0, message.lastIndexOf("\n")).toString());
+            mReceiveBuffer = new StringBuffer(BUFFER_SIZE);
+            mReceiveBuffer.append(message.substring(message.lastIndexOf("\n") + 1));
         }
     }
 

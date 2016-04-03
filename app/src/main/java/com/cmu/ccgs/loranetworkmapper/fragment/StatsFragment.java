@@ -21,7 +21,7 @@ import android.widget.Button;
 
 import com.cmu.ccgs.loranetworkmapper.R;
 import com.cmu.ccgs.loranetworkmapper.adapter.StatsAdapter;
-import com.cmu.ccgs.loranetworkmapper.usb.serial.service.SerialConsoleService;
+import com.cmu.ccgs.loranetworkmapper.lora.mdot.service.MdotSerialConsoleService;
 
 /**
  * Created by cef on 4/2/16.
@@ -109,19 +109,21 @@ public class StatsFragment extends Fragment implements View.OnClickListener {
     }
 
     protected void connect(){
-        SerialConsoleService.connect(getActivity());
+        MdotSerialConsoleService.connect(getActivity());
     }
 
     protected void disconnect(){
-        SerialConsoleService.disconnect(getActivity());
+        MdotSerialConsoleService.disconnect(getActivity());
     }
 
     protected void refresh(){
         requestLocationUpdate();
+        MdotSerialConsoleService.queryDeviceConfig(getActivity());
     }
 
     protected void ping(){
         requestLocationUpdate();
+        MdotSerialConsoleService.sendPing(getActivity());
     }
 
     private void requestLocationUpdate(){

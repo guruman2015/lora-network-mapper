@@ -21,6 +21,7 @@ import android.widget.EditText;
 
 import com.cmu.ccgs.loranetworkmapper.R;
 import com.cmu.ccgs.loranetworkmapper.adapter.LogAdapter;
+import com.cmu.ccgs.loranetworkmapper.lora.mdot.service.MdotSerialConsoleService;
 import com.cmu.ccgs.loranetworkmapper.usb.serial.service.SerialConsoleService;
 
 /**
@@ -108,7 +109,7 @@ public class SerialConsoleFragment extends Fragment implements View.OnClickListe
 
     protected void sendText(){
         String text = mTextInput.getText().toString();
-        SerialConsoleService.sendMessage(getActivity(), text + "\r\n");
+        MdotSerialConsoleService.sendMessage(getActivity(), text + "\r\n");
         mTextInput.setText("");
     }
 

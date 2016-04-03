@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".usb.serial.service.SerialConsoleService"/>
+        <service android:name=".lora.mdot.service.MdotSerialConsoleService"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
