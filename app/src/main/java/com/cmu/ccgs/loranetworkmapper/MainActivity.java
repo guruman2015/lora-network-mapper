@@ -1,6 +1,7 @@
 package com.cmu.ccgs.loranetworkmapper;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -17,9 +19,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 
+import com.cmu.ccgs.loranetworkmapper.fragment.SerialConsoleFragment;
+import com.cmu.ccgs.loranetworkmapper.fragment.StatsFragment;
+import com.cmu.ccgs.loranetworkmapper.usb.serial.service.SerialConsoleService;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
@@ -29,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
     private GoogleMap mGoogleMap;
 
-    private Toolbar mToolbar;
     private TabLayout mTabLayout;
 
     private final int REQUEST_PERMISSION_LOCATION_CODE = 0;
@@ -41,16 +45,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -59,8 +53,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -126,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
 
         public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -137,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = null;
             switch (position){
                 case 0:
-                    fragment = new Fragment();
+                    fragment = new StatsFragment();
                     break;
                 case 1: {
                     SupportMapFragment map = SupportMapFragment.newInstance();
@@ -152,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
                 case 2:
-                    fragment = new Fragment();
+                    fragment = new SerialConsoleFragment();
                     break;
             }
             return fragment;
