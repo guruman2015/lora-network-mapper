@@ -26,9 +26,11 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     }
 
     public void appendData(String message){
-        List<String> lines = Arrays.asList(message.split("\n"));
-        mData.addAll(lines);
-        notifyDataSetChanged();
+        if(message != null){
+            List<String> lines = Arrays.asList(message.split("\n"));
+            mData.addAll(lines);
+            notifyDataSetChanged();
+        }
     }
 
     @Override

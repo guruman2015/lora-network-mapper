@@ -3,12 +3,15 @@ package com.cmu.ccgs.loranetworkmapper.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.cmu.ccgs.loranetworkmapper.R;
+import com.cmu.ccgs.loranetworkmapper.adapter.StatsAdapter;
 import com.cmu.ccgs.loranetworkmapper.usb.serial.service.SerialConsoleService;
 
 /**
@@ -20,6 +23,9 @@ public class StatsFragment extends Fragment implements View.OnClickListener {
     Button mDisconnect;
     Button mRefresh;
     Button mPing;
+
+    RecyclerView mRecyclerView;
+    StatsAdapter mAdapter = null;
 
     @Nullable
     @Override
@@ -39,6 +45,18 @@ public class StatsFragment extends Fragment implements View.OnClickListener {
         mDisconnect.setOnClickListener(this);
         mRefresh.setOnClickListener(this);
         mPing.setOnClickListener(this);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(manager);
+        mRecyclerView.setAdapter(getAdapter());
+    }
+
+    protected RecyclerView.Adapter getAdapter(){
+        if(mAdapter == null){
+            mAdapter = new StatsAdapter();
+        }
+        return mAdapter;
     }
 
     protected void connect(){

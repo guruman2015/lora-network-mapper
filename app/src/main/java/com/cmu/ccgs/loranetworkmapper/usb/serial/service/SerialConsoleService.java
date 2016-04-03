@@ -111,7 +111,7 @@ public class SerialConsoleService extends Service {
                     if(message.contains("\n")){
                         notifyUpdate(message.subSequence(0, message.lastIndexOf("\n")).toString());
                         mReceiveBuffer = new StringBuffer(BUFFER_SIZE);
-                        mReceiveBuffer.append(message.substring(message.lastIndexOf("\n")+1));
+                        mReceiveBuffer.append(message.substring(message.lastIndexOf("\n") + 1));
                     }
                 }
             };
@@ -135,12 +135,18 @@ public class SerialConsoleService extends Service {
                 sendMessage(intent.getStringExtra(KEY_MESSAGE));
                 break;
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        disconnect();
+        super.onDestroy();
     }
 
     /*
-     * Commands
-     */
+         * Commands
+         */
     protected void connect(){
         Intent i = new Intent(this, SerialConsoleService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
@@ -186,9 +192,10 @@ public class SerialConsoleService extends Service {
             }
             mReadManager = null;
             mWriteManager = null;
-            notifyDisconnected();
             Log.e(TAG, "Disconnected");
         }
+        notifyDisconnected();
+        stopSelf();
     }
 
     protected void sendMessage(String message){
