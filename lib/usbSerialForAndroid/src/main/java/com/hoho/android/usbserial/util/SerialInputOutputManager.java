@@ -62,6 +62,8 @@ public class SerialInputOutputManager implements Runnable {
     // Synchronized by 'this'
     private Listener mListener;
 
+    private boolean mWrite = false;
+
     public interface Listener {
         /**
          * Called when new incoming data is available.
@@ -89,6 +91,13 @@ public class SerialInputOutputManager implements Runnable {
         mDriver = driver;
         mListener = listener;
     }
+
+    public SerialInputOutputManager(UsbSerialPort driver, Listener listener, boolean write) {
+        mDriver = driver;
+        mListener = listener;
+        mWrite = write;
+    }
+
 
     public synchronized void setListener(Listener listener) {
         mListener = listener;
@@ -155,35 +164,38 @@ public class SerialInputOutputManager implements Runnable {
     }
 
     private void step() throws IOException {
-        // Handle incoming data.
-        int len = mDriver.read(mReadBuffer.array(), READ_WAIT_MILLIS);
-        if (len > 0) {
-            if (DEBUG) Log.d(TAG, "Read data len=" + len);
-            final Listener listener = getListener();
-            if (listener != null) {
-                final byte[] data = new byte[len];
-                mReadBuffer.get(data, 0, len);
-                listener.onNewData(data);
-            }
-            mReadBuffer.clear();
-        }
-
-        // Handle outgoing data.
-        byte[] outBuff = null;
-        synchronized (mWriteBuffer) {
-            len = mWriteBuffer.position();
+        if(!mWrite){
+            // Handle incoming data.
+            int len = mDriver.read(mReadBuffer.array(), READ_WAIT_MILLIS);
             if (len > 0) {
-                outBuff = new byte[len];
-                mWriteBuffer.rewind();
-                mWriteBuffer.get(outBuff, 0, len);
-                mWriteBuffer.clear();
+                if (DEBUG) Log.d(TAG, "Read data len=" + len);
+                final Listener listener = getListener();
+                if (listener != null) {
+                    final byte[] data = new byte[len];
+                    mReadBuffer.get(data, 0, len);
+                    listener.onNewData(data);
+                }
+                mReadBuffer.clear();
             }
-        }
-        if (outBuff != null) {
-            if (DEBUG) {
-                Log.d(TAG, "Writing data len=" + len);
+        } else {
+            // Handle outgoing data.
+            int len = 0;
+            byte[] outBuff = null;
+            synchronized (mWriteBuffer) {
+                len = mWriteBuffer.position();
+                if (len > 0) {
+                    outBuff = new byte[len];
+                    mWriteBuffer.rewind();
+                    mWriteBuffer.get(outBuff, 0, len);
+                    mWriteBuffer.clear();
+                }
             }
-            mDriver.write(outBuff, READ_WAIT_MILLIS);
+            if (outBuff != null) {
+                if (DEBUG) {
+                    Log.d(TAG, "Writing data len=" + len);
+                }
+                mDriver.write(outBuff, READ_WAIT_MILLIS);
+            }
         }
     }
 
