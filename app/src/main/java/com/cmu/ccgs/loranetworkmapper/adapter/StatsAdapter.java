@@ -19,16 +19,23 @@ public class StatsAdapter extends SectionedRecyclerViewAdapter<StatsAdapter.Stat
 
     private List<String> mConfigData = new ArrayList<String>();
 
-    private float mLat;
-    private float mLng;
+    private double mLat;
+    private double mLng;
+    private double mDistance;
 
     private int mRssi;
     private int mSnr;
     private String mTimestamp;
 
-    public void updateLocation(float lat, float lng){
+    public StatsAdapter(){
+        super();
+        mConfigData.add("No config data");
+    }
+
+    public void updateLocation(double lat, double lng, double distance){
         mLat = lat;
         mLng = lng;
+        mDistance = distance;
         notifyDataSetChanged();
     }
 
@@ -61,7 +68,7 @@ public class StatsAdapter extends SectionedRecyclerViewAdapter<StatsAdapter.Stat
     @Override
     public int getItemCount(int i) {
         if(i == 0){
-            return 2;
+            return 3;
         } else if(i == 1){
             return 3;
         } else {
@@ -106,6 +113,9 @@ public class StatsAdapter extends SectionedRecyclerViewAdapter<StatsAdapter.Stat
                 break;
             case 1:
                 statsViewHolder.setText("Long: " + mLng);
+                break;
+            case 2:
+                statsViewHolder.setText("Distance: " + mDistance);
                 break;
         }
     }
