@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import com.cmu.ccgs.loranetworkmapper.fragment.SerialConsoleFragment;
 import com.cmu.ccgs.loranetworkmapper.fragment.StatsFragment;
 import com.cmu.ccgs.loranetworkmapper.lora.mdot.service.MdotSerialConsoleService;
+import com.firebase.client.Firebase;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, MdotSerialConsoleService.class);
         bindService(i, mConnection, BIND_AUTO_CREATE);
+
+        Firebase.setAndroidContext(this);
     }
 
     @Override

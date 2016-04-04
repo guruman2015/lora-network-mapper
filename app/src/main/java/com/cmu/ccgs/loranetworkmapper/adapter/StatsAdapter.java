@@ -23,8 +23,8 @@ public class StatsAdapter extends SectionedRecyclerViewAdapter<StatsAdapter.Stat
     private double mLng;
     private double mDistance;
 
-    private int mRssi;
-    private int mSnr;
+    private double mRssi;
+    private double mSnr;
     private String mTimestamp;
 
     public StatsAdapter(){
@@ -39,9 +39,24 @@ public class StatsAdapter extends SectionedRecyclerViewAdapter<StatsAdapter.Stat
         notifyDataSetChanged();
     }
 
-    public void setRssiAndSnr(int rssi, int snr, String timestamp){
+    public void setRssiAndSnr(double rssi, double snr, String timestamp){
         mRssi = rssi;
         mSnr = snr;
+        mTimestamp = timestamp;
+        notifyDataSetChanged();
+    }
+
+    public void setRssi(double rssi){
+        mRssi = rssi;
+        notifyDataSetChanged();
+    }
+
+    public void setSnr(double snr){
+        mSnr = snr;
+        notifyDataSetChanged();
+    }
+
+    public void updateTimestamp(String timestamp){
         mTimestamp = timestamp;
         notifyDataSetChanged();
     }
