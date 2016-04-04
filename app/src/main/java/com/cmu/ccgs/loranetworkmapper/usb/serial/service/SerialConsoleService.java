@@ -147,7 +147,14 @@ public class SerialConsoleService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "Service created");
+    }
+
+    @Override
     public void onDestroy() {
+        Log.d(TAG,"Service destroyed");
         disconnect();
         super.onDestroy();
     }

@@ -1,8 +1,12 @@
 package com.cmu.ccgs.loranetworkmapper;
 
 import android.Manifest;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -12,12 +16,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cmu.ccgs.loranetworkmapper.fragment.SerialConsoleFragment;
 import com.cmu.ccgs.loranetworkmapper.fragment.StatsFragment;
-import com.cmu.ccgs.loranetworkmapper.usb.serial.service.SerialConsoleService;
+import com.cmu.ccgs.loranetworkmapper.lora.mdot.service.MdotSerialConsoleService;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -32,6 +37,18 @@ public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_PERMISSION_LOCATION_CODE = 0;
 
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d("MdotActivity", "Service connected");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d("MdotActivity", "Service disconnected");
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,12 +61,15 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mViewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
         mTabLayout.setupWithViewPager(mViewPager);
+
+        Intent i = new Intent(this, MdotSerialConsoleService.class);
+        bindService(i, mConnection, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        unbindService(mConnection);
     }
 
     @Override
@@ -65,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        SerialConsoleService.disconnect(this);
+        MdotSerialConsoleService.disconnect(this);
     }
 
     @Override

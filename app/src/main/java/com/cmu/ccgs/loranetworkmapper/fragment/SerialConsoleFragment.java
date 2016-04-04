@@ -45,17 +45,12 @@ public class SerialConsoleFragment extends Fragment implements View.OnClickListe
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, new IntentFilter(SerialConsoleService.NOTIFY_MESSAGE_RECEIVED));
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, new IntentFilter(SerialConsoleService.NOTIFY_MESSAGE_RECEIVED));
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     @Override

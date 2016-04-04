@@ -43,6 +43,7 @@ public class MdotSerialConsoleService extends SerialConsoleService {
                 ret = super.onStartCommand(intent, flags, startId);
                 break;
         }
+        stopSelf(startId);
         return ret;
     }
 
@@ -54,4 +55,7 @@ public class MdotSerialConsoleService extends SerialConsoleService {
         sendMessage("AT&V\r\n");
     }
 
+    protected void onNewData(String data){
+        super.onNewData(data);
+    }
 }
